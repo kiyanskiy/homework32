@@ -19,32 +19,32 @@ class TableViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // задание с
-        names.asObservable()
-            .bind(to: namesTableView.rx.items) {
-              (tableView: UITableView, index: Int, element: String) in
-              let cell = UITableViewCell(style: .default,
-        reuseIdentifier: "cell")
-              cell.textLabel?.text = element
-        return cell }
-            .disposed(by: disposeBag)
+//        names.asObservable()
+//            .bind(to: namesTableView.rx.items) {
+//              (tableView: UITableView, index: Int, element: String) in
+//              let cell = UITableViewCell(style: .default,
+//        reuseIdentifier: "cell")
+//              cell.textLabel?.text = element
+//        return cell }
+//            .disposed(by: disposeBag)
         
         //Задание f
-//        searchBar.rx.text.orEmpty.throttle(.milliseconds(2000), scheduler: MainScheduler.instance).distinctUntilChanged().map({query in
-//            self.names.value.filter({name in
-//                query.isEmpty || name.lowercased().contains(query.lowercased())})}).bind(to: namesTableView.rx.items) {
-//                    (tableView: UITableView, index: Int, element: String) in
-//                    let cell = UITableViewCell(style: .default,
-//                                               reuseIdentifier: "cell")
-//                    cell.textLabel?.text = element
-//                    return cell }
-//                .disposed(by: disposeBag)
+        searchBar.rx.text.orEmpty.debounce(.milliseconds(2000), scheduler: MainScheduler.instance).map({query in
+                    self.names.value.filter({name in
+                        query.isEmpty || name.lowercased().contains(query.lowercased())})}).bind(to: namesTableView.rx.items) {
+                            (tableView: UITableView, index: Int, element: String) in
+                            let cell = UITableViewCell(style: .default,
+                                                       reuseIdentifier: "cell")
+                            cell.textLabel?.text = element
+                            return cell }
+                        .disposed(by: disposeBag)
         
     }
 
     @IBAction func addName(_ sender: Any) {
         var newArray = names.value
         let index =  Int.random(in: 0...newArray.count - 1)
-        newArray.append(newArray[index])
+        newArray.insert(newArray[index], at: 0)
         names.accept(newArray)
     }
     @IBAction func removeLastName(_ sender: Any) {
